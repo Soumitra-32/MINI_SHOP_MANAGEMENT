@@ -1,0 +1,65 @@
+-- Create the database
+CREATE DATABASE IF NOT EXISTS expense_treacker_db;
+USE expense_treacker_db;
+
+-- Table: admin
+CREATE TABLE admin (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    admin_key VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+
+
+-- Table: employee
+CREATE TABLE employee (
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE categories (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    quantity INT
+);
+
+
+
+-- Table: transactions
+CREATE TABLE transactions (
+    id INT NOT NULL AUTO_INCREMENT,
+    type VARCHAR(20) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    amount DOUBLE NOT NULL,
+    currency VARCHAR(20),
+    date DATE NOT NULL,
+    notes TEXT,
+    name VARCHAR(100) NOT NULL,
+    status VARCHAR(50),
+    PRIMARY KEY (id)
+);
+
+
+
+
+
+
+CREATE TABLE companies (
+    id INT PRIMARY KEY,
+    company_name VARCHAR(100),
+    category_name VARCHAR(100),
+    quantity INT,
+    price DECIMAL(10, 2),
+    selling_price DECIMAL(10, 2)
+);
+
+
+CREATE TABLE category_budgets (
+    category_name VARCHAR(255) PRIMARY KEY,
+    budget DOUBLE NOT NULL
+);
+
