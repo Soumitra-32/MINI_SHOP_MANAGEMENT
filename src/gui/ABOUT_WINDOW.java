@@ -1,86 +1,90 @@
 package gui;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class ABOUT_WINDOW extends JFrame {
 
     public ABOUT_WINDOW() {
-        setTitle("About - Expense Management System");
-        setSize(500, 420);
-        setLocationRelativeTo(null);  // puts the screen in the center
+        setTitle("About - Mini Shop & Expense Management System");
+        setSize(540, 460);
+        setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        getContentPane().setBackground(new Color(240, 248, 255));
+        getContentPane().setBackground(ModernTheme.BG_LIGHT);
         setLayout(new BorderLayout(10, 10));
 
-        JLabel title = new JLabel("Expense Management System", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        title.setForeground(new Color(25, 25, 112)); // Dark blue
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(ModernTheme.CARD_BG);
+        header.setBorder(new EmptyBorder(16, 20, 16, 20));
+
+        JLabel title = new JLabel("Mini Shop & Expense Management", SwingConstants.CENTER);
+        title.setFont(ModernTheme.FONT_TITLE);
+        title.setForeground(ModernTheme.TEXT_MAIN);
+
+        JLabel sub = new JLabel("Version 2.0 • Powered by PostgreSQL & Java Swing", SwingConstants.CENTER);
+        sub.setFont(ModernTheme.FONT_REGULAR);
+        sub.setForeground(ModernTheme.TEXT_MUTED);
+
+        header.add(title, BorderLayout.NORTH);
+        header.add(sub, BorderLayout.SOUTH);
+        add(header, BorderLayout.NORTH);
 
         JTextArea description = new JTextArea();
         description.setText("""
-                Welcome to the Expense Management System!
+                Welcome to Mini Shop & Expense Management System!
 
-                This application helps users efficiently manage and visualize their income,
-                expenses, budgets, and financial reports.
+                This application helps businesses efficiently track stock, sales transactions,
+                categories, operating expenses, and monthly financial performance.
 
-                ✦ Features:
-                • Track daily, monthly, and yearly transactions
-                • Add, edit, and delete income or expense entries
-                • View visual reports using bar charts and summaries
-                • Set monthly budgets and monitor spending
-                • Inventory and product stock management
+                ✦ Key Features:
+                • Dual transaction management (Sales/Income & Expenditures)
+                • Live stock decrementing and low-stock inventory dashboard alerts
+                • Category and product/company supplier inventory management
+                • Monthly budget tracking and financial reporting analytics
+                • PostgreSQL persistence for local and cloud deployments
 
-                👤 Ideal for:
-                • Individuals managing personal finance
-                • Small businesses and startups
-                • Managers handling employee expenditures
+                👤 Ideal For:
+                • Retail shops, mini-marts, and small business points of sale
+                • Managers handling employee transactions and store revenue
 
-                📞 Contact Number: +880-1234-567890
-                📧 Email: support@expensesystem.com
+                📞 Support: +880-1234-567890
+                📧 Contact: support@minishop.com
                 """);
-        description.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        description.setForeground(Color.DARK_GRAY);
-        description.setBackground(new Color(240, 248, 255));
+        description.setFont(ModernTheme.FONT_REGULAR);
+        description.setForeground(ModernTheme.TEXT_MAIN);
+        description.setBackground(ModernTheme.CARD_BG);
         description.setEditable(false);
         description.setWrapStyleWord(true);
         description.setLineWrap(true);
-        description.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        description.setBorder(new EmptyBorder(12, 16, 12, 16));
 
         JScrollPane scrollPane = new JScrollPane(description);
-        scrollPane.setBorder(null);
-        scrollPane.setBackground(new Color(240, 248, 255));
-        scrollPane.setPreferredSize(new Dimension(480, 250));
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(
+                new EmptyBorder(0, 16, 0, 16),
+                BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true)
+        ));
+        add(scrollPane, BorderLayout.CENTER);
 
-        JButton closeButton = new JButton("Close");
-        closeButton.setFocusPainted(false);
-        closeButton.setBackground(new Color(220, 20, 60)); // Crimson
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        closeButton.addActionListener(e -> dispose());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 12));
+        buttonPanel.setBackground(ModernTheme.CARD_BG);
+        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, ModernTheme.BORDER_COLOR));
 
-        JButton backButton = new JButton("Back to Homepage");
-        backButton.setFocusPainted(false);
-        backButton.setBackground(new Color(100, 149, 237)); // Cornflower blue
-        backButton.setForeground(Color.WHITE);
-        backButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JButton backButton = ModernTheme.createButton("Back to Homepage", ModernTheme.PRIMARY);
         backButton.addActionListener(e -> {
-            new homepage("Expense management portal");
+            new homepage("Expense & Shop Management Portal");
             dispose();
         });
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(240, 248, 255));
+        JButton closeButton = ModernTheme.createButton("Close", new Color(148, 163, 184));
+        closeButton.addActionListener(e -> dispose());
+
         buttonPanel.add(backButton);
         buttonPanel.add(closeButton);
 
-        add(title, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-
         setVisible(true);
     }
 }
+

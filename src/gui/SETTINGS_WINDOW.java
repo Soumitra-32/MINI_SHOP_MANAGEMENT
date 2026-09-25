@@ -63,6 +63,15 @@ public class SETTINGS_WINDOW extends JFrame {
         saveBudgetButton = new JButton("Save Monthly Budget");
         topPanel.add(saveBudgetButton);
 
+        topPanel.add(new JLabel("Currency: "));
+        JTextField currencyField = new JTextField(5);
+        loadCurrencySetting(currencyField);
+        topPanel.add(currencyField);
+
+        JButton saveCurrencyBtn = new JButton("Save Currency");
+        saveCurrencyBtn.addActionListener(e -> saveCurrencySetting(currencyField.getText().trim()));
+        topPanel.add(saveCurrencyBtn);
+
         add(topPanel, BorderLayout.NORTH);
 
         // Table
@@ -84,6 +93,7 @@ public class SETTINGS_WINDOW extends JFrame {
         };
 
         table = new JTable(tableModel);
+        ModernTheme.styleTable(table);
         table.getColumnModel().removeColumn(table.getColumnModel().getColumn(0)); // Hide ID
 
         add(new JScrollPane(table), BorderLayout.CENTER);
@@ -213,7 +223,7 @@ public class SETTINGS_WINDOW extends JFrame {
 
         try (Connection conn = database.getConnection()) {
             String updateTotal = "INSERT INTO settings (setting_key, value) VALUES (?, ?) " +
-                    "ON DUPLICATE KEY UPDATE value = VALUES(value)";
+                    "ON CONFLICT (setting_key) DO UPDATE SET value = EXCLUDED.value";
             try (PreparedStatement stmt = conn.prepareStatement(updateTotal)) {
                 stmt.setString(1, key);
                 stmt.setString(2, String.valueOf(newBudget));
@@ -225,6 +235,37 @@ public class SETTINGS_WINDOW extends JFrame {
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error saving budget: " + e.getMessage());
+        }
+    }
+
+    private void loadCurrencySetting(JTextField currencyField) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT value FROM settings WHERE setting_key = 'currency'")) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currencyField.setText(rs.getString("value"));
+            } else {
+                currencyField.setText("BDT");
+            }
+        } catch (Exception e) {
+            currencyField.setText("BDT");
+        }
+    }
+
+    private void saveCurrencySetting(String curr) {
+        if (curr == null || curr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Currency cannot be empty.");
+            return;
+        }
+        try (Connection conn = database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "INSERT INTO settings (setting_key, value) VALUES ('currency', ?) " +
+                             "ON CONFLICT (setting_key) DO UPDATE SET value = EXCLUDED.value")) {
+            ps.setString(1, curr);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Currency updated to: " + curr);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving currency: " + e.getMessage());
         }
     }
 

@@ -8,7 +8,7 @@ import java.sql.*;
 import java.time.LocalDate;
 
 public class ADD_TRANSACTIONS_WINDOW extends JFrame {
-    private JComboBox<String> categoryCombo, companyCombo;
+    private JComboBox<String> categoryCombo, companyCombo, typeCombo;
     private JTextField amountField, quantityField, pricePerUnitField, dateField;
     private JTextArea notesArea;
     private JLabel currencyLabel, quantityLabel, priceLabel;
@@ -20,7 +20,7 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
         this.userPost = post;
 
         setTitle("Add Transaction");
-        setSize(550, 600);
+        setSize(550, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         getContentPane().setBackground(new Color(230, 245, 255));
@@ -36,16 +36,25 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
     private void initComponents() {
         JLabel title = new JLabel("Add Transaction");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setBounds(180, 20, 250, 30);
+        title.setBounds(180, 15, 250, 30);
         add(title);
+
+        // Transaction Type (Income / Expense)
+        JLabel typeLabel = new JLabel("Type:");
+        typeLabel.setBounds(50, 55, 100, 25);
+        add(typeLabel);
+
+        typeCombo = new JComboBox<>(new String[]{"Income", "Expense"});
+        typeCombo.setBounds(150, 55, 200, 25);
+        add(typeCombo);
 
         // Category label & combo
         JLabel categoryLabel = new JLabel("Category:");
-        categoryLabel.setBounds(50, 70, 100, 25);
+        categoryLabel.setBounds(50, 95, 100, 25);
         add(categoryLabel);
 
         categoryCombo = new JComboBox<>();
-        categoryCombo.setBounds(150, 70, 200, 25);
+        categoryCombo.setBounds(150, 95, 200, 25);
         categoryCombo.addActionListener(e -> {
             loadCompaniesForCategory();
             loadSellingPrice();
@@ -54,21 +63,21 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
 
         // Company label & combo
         JLabel companyLabel = new JLabel("Company:");
-        companyLabel.setBounds(50, 110, 100, 25);
+        companyLabel.setBounds(50, 135, 100, 25);
         add(companyLabel);
 
         companyCombo = new JComboBox<>();
-        companyCombo.setBounds(150, 110, 200, 25);
+        companyCombo.setBounds(150, 135, 200, 25);
         companyCombo.addActionListener(e -> loadSellingPrice());
         add(companyCombo);
 
         // Quantity
         quantityLabel = new JLabel("Quantity:");
-        quantityLabel.setBounds(50, 150, 100, 25);
+        quantityLabel.setBounds(50, 175, 100, 25);
         add(quantityLabel);
 
         quantityField = new JTextField();
-        quantityField.setBounds(150, 150, 200, 25);
+        quantityField.setBounds(150, 175, 200, 25);
         quantityField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent e) {
                 updateAmount();
@@ -78,47 +87,47 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
 
         // Price/unit (disabled, fetched from companies)
         priceLabel = new JLabel("Price/unit:");
-        priceLabel.setBounds(50, 190, 100, 25);
+        priceLabel.setBounds(50, 215, 100, 25);
         add(priceLabel);
 
         pricePerUnitField = new JTextField();
-        pricePerUnitField.setBounds(150, 190, 200, 25);
+        pricePerUnitField.setBounds(150, 215, 200, 25);
         pricePerUnitField.setEditable(false); // user cannot edit
         add(pricePerUnitField);
 
         // Amount (calculated)
         JLabel amountLabel = new JLabel("Amount:");
-        amountLabel.setBounds(50, 230, 100, 25);
+        amountLabel.setBounds(50, 255, 100, 25);
         add(amountLabel);
 
         amountField = new JTextField();
-        amountField.setBounds(150, 230, 200, 25);
+        amountField.setBounds(150, 255, 200, 25);
         amountField.setEditable(false);
         add(amountField);
 
-        currencyLabel = new JLabel("");
-        currencyLabel.setBounds(360, 230, 100, 25);
+        currencyLabel = new JLabel("BDT");
+        currencyLabel.setBounds(360, 255, 100, 25);
         add(currencyLabel);
 
         // Date
         JLabel dateLabel = new JLabel("Date (YYYY-MM-DD):");
-        dateLabel.setBounds(50, 270, 150, 25);
+        dateLabel.setBounds(50, 295, 150, 25);
         add(dateLabel);
 
         dateField = new JTextField(LocalDate.now().toString());
-        dateField.setBounds(200, 270, 150, 25);
+        dateField.setBounds(200, 295, 150, 25);
         add(dateField);
 
         // Notes
         JLabel notesLabel = new JLabel("Notes:");
-        notesLabel.setBounds(50, 310, 100, 25);
+        notesLabel.setBounds(50, 335, 100, 25);
         add(notesLabel);
 
         notesArea = new JTextArea();
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
         JScrollPane scrollPane = new JScrollPane(notesArea);
-        scrollPane.setBounds(150, 310, 300, 80);
+        scrollPane.setBounds(150, 335, 300, 75);
         add(scrollPane);
 
         // Add button
@@ -126,7 +135,7 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
         addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         addButton.setBackground(new Color(52, 152, 219));
         addButton.setForeground(Color.WHITE);
-        addButton.setBounds(180, 410, 200, 40);
+        addButton.setBounds(180, 430, 200, 40);
         addButton.setFocusPainted(false);
         addButton.addActionListener(e -> addTransaction());
         add(addButton);
@@ -134,13 +143,15 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
 
     private void loadCurrency() {
         try (Connection conn = database.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT currency FROM settings ORDER BY id DESC LIMIT 1");
+             PreparedStatement ps = conn.prepareStatement("SELECT value FROM settings WHERE setting_key = 'currency' LIMIT 1");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                currencyLabel.setText(rs.getString("currency"));
+                currencyLabel.setText(rs.getString("value"));
+            } else {
+                currencyLabel.setText("BDT");
             }
         } catch (Exception e) {
-            currencyLabel.setText("");
+            currencyLabel.setText("BDT");
         }
     }
 
@@ -225,6 +236,8 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
     }
 
     private void addTransaction() {
+        String type = (String) typeCombo.getSelectedItem();
+        if (type == null) type = "Income";
         String category = (String) categoryCombo.getSelectedItem();
         String company = (String) companyCombo.getSelectedItem();
         String amountText = amountField.getText().trim();
@@ -252,10 +265,12 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
             return;
         }
 
-        // Inventory check & update
+        // Check stock and update companies & categories tables
         try (Connection conn = database.getConnection()) {
+            conn.setAutoCommit(false);
+
             PreparedStatement psCheck = conn.prepareStatement(
-                    "SELECT quantity FROM inventory WHERE product_name = ? AND company_name = ?");
+                    "SELECT quantity FROM companies WHERE category_name = ? AND company_name = ?");
             psCheck.setString(1, category);
             psCheck.setString(2, company);
             ResultSet rs = psCheck.executeQuery();
@@ -263,45 +278,52 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
             if (rs.next()) {
                 int stock = rs.getInt("quantity");
                 if (stock < quantity) {
-                    JOptionPane.showMessageDialog(this, "Not enough stock in inventory.");
+                    JOptionPane.showMessageDialog(this, "Not enough stock in inventory. Available: " + stock);
+                    conn.rollback();
                     return;
                 }
                 PreparedStatement psUpdate = conn.prepareStatement(
-                        "UPDATE inventory SET quantity = quantity - ? WHERE product_name = ? AND company_name = ?");
+                        "UPDATE companies SET quantity = quantity - ? WHERE category_name = ? AND company_name = ?");
                 psUpdate.setInt(1, quantity);
                 psUpdate.setString(2, category);
                 psUpdate.setString(3, company);
                 psUpdate.executeUpdate();
+
+                // Keep categories.quantity updated
+                PreparedStatement psCatUpdate = conn.prepareStatement(
+                        "UPDATE categories SET quantity = (SELECT COALESCE(SUM(quantity), 0) FROM companies WHERE category_name = ?) WHERE name = ?");
+                psCatUpdate.setString(1, category);
+                psCatUpdate.setString(2, category);
+                psCatUpdate.executeUpdate();
             } else {
                 JOptionPane.showMessageDialog(this, "Item not found in inventory.");
+                conn.rollback();
                 return;
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
-            return;
-        }
 
-        try (Connection conn = database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO transactions (category, company_name, amount, currency, date, notes, name, status, quantity) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            ps.setString(1, category);
-            ps.setString(2, company);
-            ps.setDouble(3, amount);
-            ps.setString(4, currency);
-            ps.setDate(5, sqlDate);
-            ps.setString(6, notes);
-            ps.setString(7, userName);
-            ps.setString(8, userPost);
-            ps.setInt(9, quantity);
+            PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO transactions (type, category, company_name, amount, currency, date, notes, name, status, quantity) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ps.setString(1, type);
+            ps.setString(2, category);
+            ps.setString(3, company);
+            ps.setDouble(4, amount);
+            ps.setString(5, currency);
+            ps.setDate(6, sqlDate);
+            ps.setString(7, notes);
+            ps.setString(8, userName);
+            ps.setString(9, userPost);
+            ps.setInt(10, quantity);
 
             if (ps.executeUpdate() > 0) {
+                conn.commit();
                 JOptionPane.showMessageDialog(this, "Transaction added successfully.");
                 amountField.setText("");
                 notesArea.setText("");
                 quantityField.setText("");
                 pricePerUnitField.setText(String.format("%.2f", sellingPricePerUnit));
             } else {
+                conn.rollback();
                 JOptionPane.showMessageDialog(this, "Failed to add transaction.");
             }
         } catch (Exception e) {

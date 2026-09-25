@@ -1,84 +1,117 @@
 package gui;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.security.PrivateKey;
-import javax.swing.border.Border;
 
 public class employee extends JFrame {
-    JFrame frame = new JFrame("EMPLOYEE");
-    BackgroundImagePanel panel = new BackgroundImagePanel("C:\\Users\\Hp\\IdeaProjects\\MANAGE_EXPENSES-main\\src\\gui\\money_bg.jpg");
-    JPanel buttonPanel = new JPanel(new GridLayout(10, 1, 0, 0));
+    private final JFrame frame = new JFrame("Employee Portal");
 
-    JLabel title = new JLabel("<html><center>WELCOME TO EMPLOYEE PANEL.<br>MANAGE EXPENSES WITH US.</center></html>");
-    JButton[] buttons = {
-            new JButton("Add Transaction"),
-            new JButton("Settings"),
-            new JButton("Exit"),
-          //  new JButton("Back")
-    };
-
-    employee(String name, String post) {
-        frame.setSize(700, 700);
-
+    public employee(String name, String post) {
+        frame.setSize(750, 480);
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
+        frame.getContentPane().setBackground(ModernTheme.BG_LIGHT);
+        frame.setLayout(new BorderLayout());
 
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(ModernTheme.SUCCESS);
+        headerPanel.setBorder(new EmptyBorder(18, 26, 18, 26));
 
-        // Customize the label
-        title.setOpaque(true);
-        title.setBackground(new Color(0, 0, 0, 180)); // Semi-transparent background
-        title.setFont(new Font("Arial", Font.BOLD, 22));
-        title.setForeground(Color.GREEN);
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-        title.setVerticalAlignment(SwingConstants.CENTER);
-        title.setPreferredSize(new Dimension(600, 100));
+        JLabel welcomeLabel = new JLabel("Welcome, " + name + " (Employee)");
+        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        welcomeLabel.setForeground(Color.WHITE);
 
-        Border border = BorderFactory.createLineBorder(Color.RED, 3);
-        title.setBorder(border);
+        JLabel subLabel = new JLabel("Sales & Daily Transaction Management");
+        subLabel.setFont(ModernTheme.FONT_REGULAR);
+        subLabel.setForeground(new Color(236, 253, 245));
 
-        // Add label to panel (not to frame directly)
-        panel.add(title, BorderLayout.NORTH);
+        JPanel textWrap = new JPanel(new GridLayout(2, 1, 0, 3));
+        textWrap.setOpaque(false);
+        textWrap.add(welcomeLabel);
+        textWrap.add(subLabel);
+        headerPanel.add(textWrap, BorderLayout.WEST);
 
-        // Set background panel as the content pane
-        frame.setContentPane(panel);
+        frame.add(headerPanel, BorderLayout.NORTH);
 
-        buttonPanel.setOpaque(false);//to make it transparent
-        for(JButton button : buttons) {
-            button.setContentAreaFilled(false);// means i dont need any background color of buttons , which are white by default
-            button.setOpaque(false);
-            button.setForeground(Color.BLACK);
-            button.setFont(new Font("Arial", Font.BOLD, 22));
-            button.setBorder(BorderFactory.createLineBorder(Color.black, 2));//border around the button
-            buttonPanel.add(button);
+        // Action Grid
+        JPanel gridPanel = new JPanel(new GridLayout(2, 2, 16, 16));
+        gridPanel.setOpaque(false);
+        gridPanel.setBorder(new EmptyBorder(25, 30, 25, 30));
 
-            // adds hover effect
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-                // when cursor is pointed
-                public void mouseEntered(MouseEvent evt) {
-                    button.setForeground(Color.YELLOW); // Change text color on hover
-                    button.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2)); // Thicker yellow border
-                }
+        gridPanel.add(createActionTile("Add Transaction", "Enter sale item, select customer and quantity", ModernTheme.SUCCESS, () -> new ADD_TRANSACTIONS_WINDOW(name, post)));
+        gridPanel.add(createActionTile("View Transactions", "Search and view transaction records", ModernTheme.PRIMARY, () -> new VIEW_TRANSACTIONS_WINDOW()));
+        gridPanel.add(createActionTile("Reports & Summary", "View monthly sales and revenue summary", new Color(139, 92, 246), () -> new REPORTS_WINDOW()));
+        gridPanel.add(createActionTile("Inventory Stock", "Check available stock levels in shop", new Color(245, 158, 11), () -> new INVENTORY_WINDOW()));
 
-                // when cursor is removed , necessary bcz when pointed it will not revert again
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    button.setForeground(Color.BLACK); // Revert text color
-                    button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); // Revert border
-                }
-            });
-        }
-        buttonPanel.setPreferredSize(new Dimension(270, 0));
-        panel.add(buttonPanel, BorderLayout.WEST);
-        frame.setContentPane(panel);
-        buttons[0].addActionListener(e -> new ADD_TRANSACTIONS_WINDOW(name, post));
-        buttons[1].addActionListener(e -> new SETTINGS_WINDOW());
-        buttons[2].addActionListener(e -> {new homepage("Expense management portal");
-        frame.dispose();});
-        //buttons[3].addActionListener(e -> System.out.println("Back"));
+        frame.add(gridPanel, BorderLayout.CENTER);
+
+        // Footer
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
+        footer.setBackground(ModernTheme.CARD_BG);
+        footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, ModernTheme.BORDER_COLOR));
+
+        JButton logoutBtn = ModernTheme.createButton("Log Out", new Color(100, 116, 139));
+        logoutBtn.addActionListener(e -> {
+            new homepage("Expense & Shop Management Portal");
+            frame.dispose();
+        });
+
+        JButton exitBtn = ModernTheme.createButton("Exit App", ModernTheme.DANGER);
+        exitBtn.addActionListener(e -> System.exit(0));
+
+        footer.add(logoutBtn);
+        footer.add(exitBtn);
+        frame.add(footer, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
 
+    private JPanel createActionTile(String title, String desc, Color accent, Runnable action) {
+        JPanel tile = new JPanel(new BorderLayout(8, 8));
+        tile.setBackground(ModernTheme.CARD_BG);
+        tile.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
+                new EmptyBorder(14, 18, 14, 18)
+        ));
+        tile.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(ModernTheme.FONT_SUBTITLE);
+        titleLbl.setForeground(accent);
+
+        JLabel descLbl = new JLabel("<html>" + desc + "</html>");
+        descLbl.setFont(ModernTheme.FONT_REGULAR);
+        descLbl.setForeground(ModernTheme.TEXT_MUTED);
+
+        tile.add(titleLbl, BorderLayout.NORTH);
+        tile.add(descLbl, BorderLayout.CENTER);
+
+        tile.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                action.run();
+            }
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                tile.setBackground(new Color(241, 245, 249));
+                tile.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(accent, 1, true),
+                        new EmptyBorder(14, 18, 14, 18)
+                ));
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                tile.setBackground(ModernTheme.CARD_BG);
+                tile.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
+                        new EmptyBorder(14, 18, 14, 18)
+                ));
+            }
+        });
+        return tile;
+    }
 }
+

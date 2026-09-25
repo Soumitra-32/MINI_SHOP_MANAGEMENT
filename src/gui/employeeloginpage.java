@@ -1,137 +1,144 @@
 package gui;
+
 import controller.database;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Connection;
-import java.sql.Statement;
 
-public class employeeloginpage  extends JFrame {
+public class employeeloginpage extends JFrame {
+
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+
     public employeeloginpage() {
-        setTitle("Employee Login");
-        setSize(400, 360);
+        setTitle("Employee Portal Login");
+        setSize(440, 460);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        getContentPane().setBackground(ModernTheme.BG_LIGHT);
+        setLayout(new BorderLayout());
 
-        setLayout(null);
-
-
-        addgui2();
-
+        initUI();
         setVisible(true);
     }
 
-    public void addgui2() {
+    private void initUI() {
+        JPanel centerWrapper = new JPanel(new GridBagLayout());
+        centerWrapper.setOpaque(false);
 
-        // Page background
-        getContentPane().setBackground(new Color(200, 230, 255));
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(ModernTheme.CARD_BG);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
+                new EmptyBorder(30, 40, 30, 40)
+        ));
 
-// Page title
-        JLabel title = new JLabel("Employee Login Page");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setHorizontalAlignment(JLabel.CENTER);
-        title.setBounds(50, 60, 300, 40);
-        add(title);
+        JLabel title = new JLabel("Employee Sign In");
+        title.setFont(ModernTheme.FONT_TITLE);
+        title.setForeground(ModernTheme.TEXT_MAIN);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-// Username label
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setBounds(30, 100, 200, 25);
-        usernameLabel.setForeground(new Color(33, 33, 33));
-        usernameLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        add(usernameLabel);
+        JLabel sub = new JLabel("Enter your employee account credentials");
+        sub.setFont(ModernTheme.FONT_REGULAR);
+        sub.setForeground(ModernTheme.TEXT_MUTED);
+        sub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-// Username text field
-        JTextField username = new JTextField();
-        username.setBounds(30, 130, 300, 35);
-        username.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        username.setForeground(Color.BLACK);
-        username.setBackground(new Color(230, 230, 230));
-        username.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        add(username);
+        usernameField = ModernTheme.createTextField(20);
+        passwordField = ModernTheme.createPasswordField();
 
-// Password label
-        JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setBounds(30, 170, 200, 25);
-        passwordLabel.setForeground(new Color(33, 33, 33));
-        passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        add(passwordLabel);
+        Dimension fieldSize = new Dimension(280, 36);
+        usernameField.setMaximumSize(fieldSize);
+        passwordField.setMaximumSize(fieldSize);
 
-// Password field
-        JPasswordField password = new JPasswordField();
-        password.setBounds(30, 200, 300, 35);
-        password.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        password.setForeground(Color.BLACK);
-        password.setBackground(new Color(230, 230, 230));
-        password.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        add(password);
+        JButton loginBtn = ModernTheme.createButton("Log In", ModernTheme.SUCCESS);
+        loginBtn.setMaximumSize(fieldSize);
+        loginBtn.setPreferredSize(fieldSize);
+        loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-// Login button
-        JButton loginButton = new JButton("Login");
-        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        loginButton.setBackground(new Color(52, 152, 219));
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
-        loginButton.setBounds(100, 260, 160, 40);
-        loginButton.setBorder(BorderFactory.createEmptyBorder());
+        JButton backBtn = ModernTheme.createButton("← Back to Home", new Color(148, 163, 184));
+        backBtn.setMaximumSize(fieldSize);
+        backBtn.setPreferredSize(fieldSize);
+        backBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                loginButton.setBackground(new Color(41, 128, 185));
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                loginButton.setBackground(new Color(52, 152, 219));
-            }
-        });
-        add(loginButton);
-
-// Back button
-        JButton backButton = new JButton("Back");
-        backButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        backButton.setBounds(10, 10, 70, 25);
-        backButton.setBackground(new Color(200, 200, 200));
-        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        backButton.setFocusPainted(false);
-        backButton.addActionListener(e -> {
-            new homepage("Expense Management System");
+        loginBtn.addActionListener(e -> handleLogin());
+        backBtn.addActionListener(e -> {
+            new homepage("Expense & Shop Management Portal");
             dispose();
         });
-        add(backButton);
 
-        // button operation
+        card.add(title);
+        card.add(Box.createVerticalStrut(4));
+        card.add(sub);
+        card.add(Box.createVerticalStrut(25));
 
-        loginButton.addActionListener(e -> {
+        card.add(createFieldBlock("Username:", usernameField));
+        card.add(Box.createVerticalStrut(14));
+        card.add(createFieldBlock("Password:", passwordField));
+        card.add(Box.createVerticalStrut(24));
 
-            String name = username.getText();
-            String pass = new String(password.getPassword());  // ✅ correct
+        card.add(loginBtn);
+        card.add(Box.createVerticalStrut(10));
+        card.add(backBtn);
 
-
-            try (Connection c = database.getConnection()) {
-                if (c != null) {
-                    String query = "SELECT * FROM employee WHERE username = ? AND password = ?";
-                    PreparedStatement ps = c.prepareStatement(query);
-                    ps.setString(1, name);
-                    ps.setString(2, pass);
-                    ResultSet rs = ps.executeQuery();
-
-                    if (rs.next()) {
-                        JOptionPane.showMessageDialog(null, "Login successful!");
-                        new employee(name , "employee");
-                        dispose();
-                        // Navigate to dashboard
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Invalid credentials!");
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "An error occurred while connecting to the database.");
-            }
-
-        });
+        centerWrapper.add(card);
+        add(centerWrapper, BorderLayout.CENTER);
     }
 
+    private JPanel createFieldBlock(String labelText, JComponent field) {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setOpaque(false);
+        p.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(ModernTheme.FONT_BOLD);
+        lbl.setForeground(ModernTheme.TEXT_MAIN);
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        p.add(lbl);
+        p.add(Box.createVerticalStrut(4));
+        p.add(field);
+        return p;
+    }
+
+    private void handleLogin() {
+        String name = usernameField.getText().trim();
+        String pass = new String(passwordField.getPassword());
+
+        if (name.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter username and password.", "Validation Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try (Connection c = database.getConnection()) {
+            if (c != null) {
+                String query = "SELECT * FROM employee WHERE username = ? AND password = ?";
+                try (PreparedStatement ps = c.prepareStatement(query)) {
+                    ps.setString(1, name);
+                    ps.setString(2, pass);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            JOptionPane.showMessageDialog(this, "Welcome, " + name + "!");
+                            new employee(name, "employee");
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Invalid employee username or password!", "Authentication Failed", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Database connection failed.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error connecting to database: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
+

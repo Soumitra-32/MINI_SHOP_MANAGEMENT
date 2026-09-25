@@ -65,6 +65,7 @@ public class MANAGE_CATEGORIES_WINDOW extends JFrame {
             }
         };
         categoryTable = new JTable(categoryTableModel);
+        ModernTheme.styleTable(categoryTable);
         JScrollPane categoryScrollPane = new JScrollPane(categoryTable);
         categoryScrollPane.setBounds(30, 120, 390, 300);
         add(categoryScrollPane);
@@ -108,6 +109,7 @@ public class MANAGE_CATEGORIES_WINDOW extends JFrame {
             }
         };
         companyTable = new JTable(companyTableModel);
+        ModernTheme.styleTable(companyTable);
         JScrollPane companyScrollPane = new JScrollPane(companyTable);
         companyScrollPane.setBounds(450, 150, 390, 270);
         add(companyScrollPane);

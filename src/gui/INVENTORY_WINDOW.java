@@ -29,9 +29,7 @@ public class INVENTORY_WINDOW extends JFrame {
         };
 
         categoryTable = new JTable(categoryModel);
-        categoryTable.setRowHeight(28);
-        categoryTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        categoryTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        ModernTheme.styleTable(categoryTable);
 
         categoryTable.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
@@ -39,7 +37,7 @@ public class INVENTORY_WINDOW extends JFrame {
                 try {
                     int qty = Integer.parseInt(val.toString());
                     setText(String.valueOf(qty));
-                    setForeground(qty < 100 ? Color.RED : Color.BLACK);
+                    setForeground(qty < 100 ? ModernTheme.DANGER : ModernTheme.TEXT_MAIN);
                 } catch (Exception e) {
                     setText("N/A");
                 }
@@ -117,9 +115,7 @@ public class INVENTORY_WINDOW extends JFrame {
         };
 
         JTable compTable = new JTable(compModel);
-        compTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        compTable.setRowHeight(26);
-        compTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        ModernTheme.styleTable(compTable);
 
         try (Connection conn = database.getConnection();
              PreparedStatement ps = conn.prepareStatement(
@@ -195,7 +191,7 @@ public class INVENTORY_WINDOW extends JFrame {
 
                             try (PreparedStatement updateBudget = conn.prepareStatement(
                                     "UPDATE settings SET value = ? WHERE setting_key = ?")) {
-                                updateBudget.setDouble(1, newBudget);
+                                updateBudget.setString(1, String.valueOf(newBudget));
                                 updateBudget.setString(2, budgetKey);
                                 updateBudget.executeUpdate();
                             }

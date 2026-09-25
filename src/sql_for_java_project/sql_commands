@@ -1,65 +1,78 @@
--- Create the database
-CREATE DATABASE IF NOT EXISTS expense_treacker_db;
-USE expense_treacker_db;
+-- Database schema for Mini Shop / Expense Management System (PostgreSQL)
 
--- Table: admin
-CREATE TABLE admin (
-    id INT NOT NULL AUTO_INCREMENT,
+-- Admin table
+CREATE TABLE IF NOT EXISTS admin (
+    id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(100) NOT NULL,
-    admin_key VARCHAR(100) NOT NULL,
-    PRIMARY KEY (id)
-);
-
-
-
--- Table: employee
-CREATE TABLE employee (
-    id INT NOT NULL AUTO_INCREMENT,
-    username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
+    admin_key VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE categories (
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    quantity INT
+-- Employee table
+CREATE TABLE IF NOT EXISTS employee (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
 );
 
+-- Categories table
+CREATE TABLE IF NOT EXISTS categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    quantity INT DEFAULT 0
+);
 
+-- Companies table (products supplied by company for a category)
+CREATE TABLE IF NOT EXISTS companies (
+    id SERIAL PRIMARY KEY,
+    company_name VARCHAR(100) NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    quantity INT DEFAULT 0,
+    price NUMERIC(10, 2) DEFAULT 0.00,
+    selling_price NUMERIC(10, 2) DEFAULT 0.00,
+    UNIQUE (category_name, company_name)
+);
 
--- Table: transactions
-CREATE TABLE transactions (
-    id INT NOT NULL AUTO_INCREMENT,
-    type VARCHAR(20) NOT NULL,
+-- Transactions table
+CREATE TABLE IF NOT EXISTS transactions (
+    id SERIAL PRIMARY KEY,
+    type VARCHAR(20) NOT NULL DEFAULT 'Income', -- 'Income' or 'Expense'
     category VARCHAR(100) NOT NULL,
-    amount DOUBLE NOT NULL,
-    currency VARCHAR(20),
+    company_name VARCHAR(100),
+    quantity INT DEFAULT 1,
+    amount NUMERIC(10, 2) NOT NULL,
+    currency VARCHAR(20) DEFAULT 'BDT',
     date DATE NOT NULL,
     notes TEXT,
     name VARCHAR(100) NOT NULL,
-    status VARCHAR(50),
-    PRIMARY KEY (id)
+    status VARCHAR(50)
 );
 
-
-
-
-
-
-CREATE TABLE companies (
-    id INT PRIMARY KEY,
-    company_name VARCHAR(100),
-    category_name VARCHAR(100),
-    quantity INT,
-    price DECIMAL(10, 2),
-    selling_price DECIMAL(10, 2)
+-- Settings table for key-value configurations (currency, monthly budget, etc.)
+CREATE TABLE IF NOT EXISTS settings (
+    setting_key VARCHAR(100) PRIMARY KEY,
+    value VARCHAR(255) NOT NULL
 );
 
-
-CREATE TABLE category_budgets (
-    category_name VARCHAR(255) PRIMARY KEY,
-    budget DOUBLE NOT NULL
+-- Expenses table (for specific monthly expense records)
+CREATE TABLE IF NOT EXISTS expenses (
+    id SERIAL PRIMARY KEY,
+    expense_name VARCHAR(100) NOT NULL,
+    amount NUMERIC(10, 2) NOT NULL,
+    month INT NOT NULL,
+    year INT NOT NULL
 );
+
+-- Initial seed data
+INSERT INTO admin (name, password, admin_key)
+VALUES ('admin', 'admin123', 'admin@123')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO employee (username, password)
+VALUES ('employee1', 'emp123')
+ON CONFLICT (username) DO NOTHING;
+
+INSERT INTO settings (setting_key, value)
+VALUES ('currency', 'BDT')
+ON CONFLICT (setting_key) DO NOTHING;
 

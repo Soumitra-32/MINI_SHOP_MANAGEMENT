@@ -93,6 +93,7 @@ public class MANAGE_EXPENSE_WINDOW extends JFrame {
             }
         };
         expensesTable = new JTable(tableModel);
+        ModernTheme.styleTable(expensesTable);
         JScrollPane scrollPane = new JScrollPane(expensesTable);
         scrollPane.setBounds(30, 180, 630, 250);
         add(scrollPane);

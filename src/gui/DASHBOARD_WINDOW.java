@@ -100,10 +100,10 @@ public class DASHBOARD_WINDOW extends JFrame {
 
         employeeModel = new DefaultTableModel(new String[]{"Employee Username"}, 0);
         employeeTable = new JTable(employeeModel);
-        styleTable(employeeTable);
+        ModernTheme.styleTable(employeeTable);
 
         JLabel empTitle = new JLabel("Employees");
-        empTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        empTitle.setFont(ModernTheme.FONT_SUBTITLE);
         empTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
         employeePanel.add(empTitle, BorderLayout.NORTH);
@@ -116,7 +116,7 @@ public class DASHBOARD_WINDOW extends JFrame {
 
         DefaultTableModel stockModel = new DefaultTableModel(new String[]{"Product", "Quantity"}, 0);
         JTable stockTable = new JTable(stockModel);
-        styleTable(stockTable);
+        ModernTheme.styleTable(stockTable);
 
         JLabel stockTitle = new JLabel("Low Stock (<100)");
         stockTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -180,7 +180,12 @@ public class DASHBOARD_WINDOW extends JFrame {
     }
 
     private String[] getYears() {
-        return new String[]{"2025", "2024", "2023"};
+        int currentYear = java.time.LocalDate.now().getYear();
+        String[] years = new String[7];
+        for (int i = 0; i < 7; i++) {
+            years[i] = String.valueOf(currentYear - 3 + i);
+        }
+        return years;
     }
 
     private String[] getMonths() {
@@ -259,25 +264,29 @@ public class DASHBOARD_WINDOW extends JFrame {
         String month = (String) monthBox.getSelectedItem();
         String day = (String) dayBox.getSelectedItem();
 
-        String condition = switch (viewType) {
-            case "Day" -> year + "-" + month + "-" + day;
-            case "Month" -> year + "-" + month;
-            case "Year" -> year;
-            default -> "";
-        };
-
         currentIncome = 0;
         currentExpense = 0;
         currentBudget = 0;
 
         try (Connection con = database.getConnection()) {
-            String sql = switch (viewType) {
-                case "Day" -> "SELECT type, amount FROM transactions WHERE date = ?";
-                default -> "SELECT type, amount FROM transactions WHERE date LIKE ?";
-            };
+            String sql;
+            if ("Day".equals(viewType)) {
+                sql = "SELECT type, amount FROM transactions WHERE date = ?::date";
+            } else if ("Month".equals(viewType)) {
+                sql = "SELECT type, amount FROM transactions WHERE TO_CHAR(date, 'YYYY-MM') = ?";
+            } else {
+                sql = "SELECT type, amount FROM transactions WHERE TO_CHAR(date, 'YYYY') = ?";
+            }
 
             try (PreparedStatement stmt = con.prepareStatement(sql)) {
-                stmt.setString(1, viewType.equals("Day") ? condition : condition + "%");
+                if ("Day".equals(viewType)) {
+                    stmt.setString(1, year + "-" + month + "-" + day);
+                } else if ("Month".equals(viewType)) {
+                    stmt.setString(1, year + "-" + month);
+                } else {
+                    stmt.setString(1, year);
+                }
+
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     String type = rs.getString("type");
@@ -287,17 +296,24 @@ public class DASHBOARD_WINDOW extends JFrame {
                 }
             }
 
-            try (PreparedStatement budgetStmt = con.prepareStatement("SELECT budget FROM settings LIMIT 1");
-                 ResultSet budgetRs = budgetStmt.executeQuery()) {
-                if (budgetRs.next()) currentBudget = budgetRs.getDouble("budget");
+            // Budget key format: budget_YYYY_MM
+            String budgetKey = String.format("budget_%s_%s", year, month);
+            try (PreparedStatement budgetStmt = con.prepareStatement("SELECT value FROM settings WHERE setting_key = ?")) {
+                budgetStmt.setString(1, budgetKey);
+                ResultSet budgetRs = budgetStmt.executeQuery();
+                if (budgetRs.next()) {
+                    try {
+                        currentBudget = Double.parseDouble(budgetRs.getString("value"));
+                    } catch (Exception ignored) {}
+                }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        incomeLabel.setText("Income: " + currentIncome);
-        expenseLabel.setText("Expense: " + currentExpense);
+        incomeLabel.setText(String.format("Income: %.2f", currentIncome));
+        expenseLabel.setText(String.format("Expense: %.2f", currentExpense));
         displayChart();
     }
 
@@ -411,7 +427,9 @@ public class DASHBOARD_WINDOW extends JFrame {
     private void loadLowStockProducts(DefaultTableModel stockModel) {
         stockModel.setRowCount(0);
         try (Connection con = database.getConnection();
-             PreparedStatement stmt = con.prepareStatement("SELECT product_name, quantity FROM inventory WHERE quantity < 100")) {
+             PreparedStatement stmt = con.prepareStatement(
+                     "SELECT CONCAT(category_name, ' (', company_name, ')') AS product_name, quantity " +
+                             "FROM companies WHERE quantity < 100 ORDER BY quantity ASC")) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 stockModel.addRow(new Object[]{rs.getString("product_name"), rs.getInt("quantity")});
