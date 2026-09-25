@@ -192,13 +192,13 @@ What the script does, in order:
 
 | Step | Action |
 | :--- | :--- |
-| 1 | Locates `javac`/`java` — first `%JDK_BIN%`, then your system `PATH`, then falls back to the known IntelliJ JDK path `C:\Users\<user>\.jdks\openjdk-23.0.2\bin`. |
-| 2 | Creates the `out/` directory and deletes stale `*.class` files. |
-| 3 | Compiles all of `src/**/*.java` with the PostgreSQL JDBC driver on the classpath (`-encoding UTF-8`). |
+| 1 | Locates a JDK — first `%JDK_BIN%`, then `javac` on your `PATH`, then known installs (`%USERPROFILE%\.jdks\openjdk-23.0.2\bin`, `C:\Program Files\Java\jdk-21\bin`, `jdk-17\bin`). `java.exe` is always taken from the **same folder as `javac.exe`**, so an older JDK that happens to sit earlier on `PATH` is never used. |
+| 2 | Deletes any previous `out/` and recreates it, so no stale `.class` files can survive a rename or deletion. |
+| 3 | Compiles all of `src/**/*.java` with the PostgreSQL JDBC driver on the classpath (`-encoding UTF-8`). Every path is quoted, so a project folder containing spaces works. |
 | 4 | Copies the runtime resources (`db.properties` and `gui/money_bg.jpg`) into `out/`. |
 | 5 | Launches `gui.Main` with `out;lib/postgresql-42.7.3.jar` as the classpath. |
 
-**If `javac` is not found**, either install a JDK 17+ (and make sure it is on `PATH`),
+**If no JDK is found**, either install a JDK 17+ (and make sure it is on `PATH`),
 or point the script at your JDK explicitly before running it:
 
 ```powershell
