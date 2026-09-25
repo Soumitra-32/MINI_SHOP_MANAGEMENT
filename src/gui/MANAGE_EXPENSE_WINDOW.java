@@ -19,13 +19,17 @@ public class MANAGE_EXPENSE_WINDOW extends JFrame {
     private DefaultTableModel tableModel;
 
     public MANAGE_EXPENSE_WINDOW() {
-        setTitle("Manage Expenses");
-        setSize(700, 500);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(null);
+        ModernTheme.setupWindow(this, "Manage Expenses", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(0, 0));
 
-        initComponents();
+        add(ModernTheme.createHeader("Manage Expenses", "Record operating costs and track monthly budget", ModernTheme.PINK, new Color(190, 24, 93)), BorderLayout.NORTH);
+
+        JPanel body = new JPanel(null);
+        body.setOpaque(false);
+        body.setPreferredSize(new Dimension(ModernTheme.WIN_MAIN_W - 40, 440));
+        add(new JScrollPane(body), BorderLayout.CENTER);
+
+        initComponents(body);
 
         Calendar cal = Calendar.getInstance();
         monthCombo.setSelectedIndex(cal.get(Calendar.MONTH));
@@ -37,18 +41,18 @@ public class MANAGE_EXPENSE_WINDOW extends JFrame {
         setVisible(true);
     }
 
-    private void initComponents() {
-        JLabel titleLabel = new JLabel("Manage Expenses");
+    private void initComponents(JPanel body) {
+        JLabel titleLabel = new JLabel("Monthly Overview");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setBounds(250, 10, 300, 30);
-        add(titleLabel);
+        body.add(titleLabel);
 
         monthCombo = new JComboBox<>(new String[]{
                 "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December"
         });
         monthCombo.setBounds(250, 50, 120, 25);
-        add(monthCombo);
+        body.add(monthCombo);
 
         yearCombo = new JComboBox<>();
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -56,35 +60,32 @@ public class MANAGE_EXPENSE_WINDOW extends JFrame {
             yearCombo.addItem(y);
         }
         yearCombo.setBounds(380, 50, 80, 25);
-        add(yearCombo);
+        body.add(yearCombo);
 
         totalBudgetLabel = new JLabel("Total Budget: 0.00 BDT");
         totalBudgetLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        totalBudgetLabel.setBounds(480, 50, 200, 25);
-        add(totalBudgetLabel);
+        totalBudgetLabel.setBounds(480, 50, 300, 25);
+        body.add(totalBudgetLabel);
 
         JLabel expenseNameLabel = new JLabel("Expense Name:");
         expenseNameLabel.setBounds(30, 90, 120, 25);
-        add(expenseNameLabel);
+        body.add(expenseNameLabel);
 
         expenseNameField = new JTextField();
         expenseNameField.setBounds(150, 90, 200, 25);
-        add(expenseNameField);
+        body.add(expenseNameField);
 
         JLabel expenseAmountLabel = new JLabel("Amount (BDT):");
         expenseAmountLabel.setBounds(370, 90, 120, 25);
-        add(expenseAmountLabel);
+        body.add(expenseAmountLabel);
 
         expenseAmountField = new JTextField();
         expenseAmountField.setBounds(480, 90, 150, 25);
-        add(expenseAmountField);
+        body.add(expenseAmountField);
 
-        JButton addExpenseButton = new JButton("Add Expense");
-        addExpenseButton.setBounds(270, 130, 140, 30);
-        addExpenseButton.setBackground(new Color(40, 167, 69)); // Green
-        addExpenseButton.setForeground(Color.WHITE);
-        addExpenseButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        add(addExpenseButton);
+        JButton addExpenseButton = ModernTheme.createButton("Add Expense", ModernTheme.SUCCESS);
+        addExpenseButton.setBounds(270, 130, 160, 34);
+        body.add(addExpenseButton);
 
         tableModel = new DefaultTableModel(new String[]{"Expense Name", "Amount (BDT)"}, 0) {
             @Override
@@ -96,7 +97,7 @@ public class MANAGE_EXPENSE_WINDOW extends JFrame {
         ModernTheme.styleTable(expensesTable);
         JScrollPane scrollPane = new JScrollPane(expensesTable);
         scrollPane.setBounds(30, 180, 630, 250);
-        add(scrollPane);
+        body.add(scrollPane);
 
         // Listeners
         monthCombo.addActionListener(e -> {

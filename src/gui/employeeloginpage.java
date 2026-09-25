@@ -15,11 +15,7 @@ public class employeeloginpage extends JFrame {
     private JPasswordField passwordField;
 
     public employeeloginpage() {
-        setTitle("Employee Portal Login");
-        setSize(440, 460);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(ModernTheme.BG_LIGHT);
+        ModernTheme.setupWindow(this, "Employee Portal Login", ModernTheme.WIN_AUTH_W, ModernTheme.WIN_AUTH_H, JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         initUI();
@@ -27,6 +23,8 @@ public class employeeloginpage extends JFrame {
     }
 
     private void initUI() {
+        add(ModernTheme.createHeader("Employee Sign In", "Access daily sales workspace", ModernTheme.SUCCESS, new Color(4, 120, 87)), BorderLayout.NORTH);
+
         JPanel centerWrapper = new JPanel(new GridBagLayout());
         centerWrapper.setOpaque(false);
 
@@ -37,16 +35,6 @@ public class employeeloginpage extends JFrame {
                 BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
                 new EmptyBorder(30, 40, 30, 40)
         ));
-
-        JLabel title = new JLabel("Employee Sign In");
-        title.setFont(ModernTheme.FONT_TITLE);
-        title.setForeground(ModernTheme.TEXT_MAIN);
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel sub = new JLabel("Enter your employee account credentials");
-        sub.setFont(ModernTheme.FONT_REGULAR);
-        sub.setForeground(ModernTheme.TEXT_MUTED);
-        sub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         usernameField = ModernTheme.createTextField(20);
         passwordField = ModernTheme.createPasswordField();
@@ -60,7 +48,7 @@ public class employeeloginpage extends JFrame {
         loginBtn.setPreferredSize(fieldSize);
         loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton backBtn = ModernTheme.createButton("← Back to Home", new Color(148, 163, 184));
+        JButton backBtn = ModernTheme.createButton("Back to Home", new Color(148, 163, 184));
         backBtn.setMaximumSize(fieldSize);
         backBtn.setPreferredSize(fieldSize);
         backBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -70,11 +58,6 @@ public class employeeloginpage extends JFrame {
             new homepage("Expense & Shop Management Portal");
             dispose();
         });
-
-        card.add(title);
-        card.add(Box.createVerticalStrut(4));
-        card.add(sub);
-        card.add(Box.createVerticalStrut(25));
 
         card.add(createFieldBlock("Username:", usernameField));
         card.add(Box.createVerticalStrut(14));

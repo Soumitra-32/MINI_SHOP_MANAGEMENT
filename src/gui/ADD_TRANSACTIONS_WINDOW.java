@@ -3,6 +3,7 @@ package gui;
 import controller.database;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.*;
 import java.time.LocalDate;
@@ -19,12 +20,8 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
         this.userName = name;
         this.userPost = post;
 
-        setTitle("Add Transaction");
-        setSize(550, 650);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        getContentPane().setBackground(new Color(230, 245, 255));
-        setLayout(null);
+        ModernTheme.setupWindow(this, "Add Transaction", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
         initComponents();
         loadCurrency();
@@ -34,111 +31,90 @@ public class ADD_TRANSACTIONS_WINDOW extends JFrame {
     }
 
     private void initComponents() {
-        JLabel title = new JLabel("Add Transaction");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setBounds(180, 15, 250, 30);
-        add(title);
+        add(ModernTheme.createHeader("New Transaction", "Record a sale — stock deducts automatically", ModernTheme.SUCCESS, new Color(4, 120, 87)), BorderLayout.NORTH);
 
-        // Transaction Type (Income / Expense)
-        JLabel typeLabel = new JLabel("Type:");
-        typeLabel.setBounds(50, 55, 100, 25);
-        add(typeLabel);
+        JPanel centerWrap = new JPanel(new GridBagLayout());
+        centerWrap.setOpaque(false);
+        centerWrap.setBorder(new EmptyBorder(18, 20, 18, 20));
+
+        JPanel form = ModernTheme.createCard(26);
+        form.setLayout(new GridBagLayout());
+        form.setPreferredSize(new Dimension(560, 430));
 
         typeCombo = new JComboBox<>(new String[]{"Income", "Expense"});
-        typeCombo.setBounds(150, 55, 200, 25);
-        add(typeCombo);
-
-        // Category label & combo
-        JLabel categoryLabel = new JLabel("Category:");
-        categoryLabel.setBounds(50, 95, 100, 25);
-        add(categoryLabel);
-
         categoryCombo = new JComboBox<>();
-        categoryCombo.setBounds(150, 95, 200, 25);
         categoryCombo.addActionListener(e -> {
             loadCompaniesForCategory();
             loadSellingPrice();
         });
-        add(categoryCombo);
-
-        // Company label & combo
-        JLabel companyLabel = new JLabel("Company:");
-        companyLabel.setBounds(50, 135, 100, 25);
-        add(companyLabel);
-
         companyCombo = new JComboBox<>();
-        companyCombo.setBounds(150, 135, 200, 25);
         companyCombo.addActionListener(e -> loadSellingPrice());
-        add(companyCombo);
-
-        // Quantity
         quantityLabel = new JLabel("Quantity:");
-        quantityLabel.setBounds(50, 175, 100, 25);
-        add(quantityLabel);
-
-        quantityField = new JTextField();
-        quantityField.setBounds(150, 175, 200, 25);
+        priceLabel = new JLabel("Price / unit:");
+        quantityField = ModernTheme.createTextField(10);
         quantityField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent e) {
                 updateAmount();
             }
         });
-        add(quantityField);
-
-        // Price/unit (disabled, fetched from companies)
-        priceLabel = new JLabel("Price/unit:");
-        priceLabel.setBounds(50, 215, 100, 25);
-        add(priceLabel);
-
-        pricePerUnitField = new JTextField();
-        pricePerUnitField.setBounds(150, 215, 200, 25);
-        pricePerUnitField.setEditable(false); // user cannot edit
-        add(pricePerUnitField);
-
-        // Amount (calculated)
-        JLabel amountLabel = new JLabel("Amount:");
-        amountLabel.setBounds(50, 255, 100, 25);
-        add(amountLabel);
-
-        amountField = new JTextField();
-        amountField.setBounds(150, 255, 200, 25);
+        pricePerUnitField = ModernTheme.createTextField(10);
+        pricePerUnitField.setEditable(false);
+        amountField = ModernTheme.createTextField(10);
         amountField.setEditable(false);
-        add(amountField);
-
         currencyLabel = new JLabel("BDT");
-        currencyLabel.setBounds(360, 255, 100, 25);
-        add(currencyLabel);
-
-        // Date
-        JLabel dateLabel = new JLabel("Date (YYYY-MM-DD):");
-        dateLabel.setBounds(50, 295, 150, 25);
-        add(dateLabel);
-
-        dateField = new JTextField(LocalDate.now().toString());
-        dateField.setBounds(200, 295, 150, 25);
-        add(dateField);
-
-        // Notes
-        JLabel notesLabel = new JLabel("Notes:");
-        notesLabel.setBounds(50, 335, 100, 25);
-        add(notesLabel);
-
-        notesArea = new JTextArea();
+        currencyLabel.setFont(ModernTheme.FONT_BOLD);
+        dateField = ModernTheme.createTextField(10);
+        dateField.setText(LocalDate.now().toString());
+        notesArea = new JTextArea(3, 20);
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(notesArea);
-        scrollPane.setBounds(150, 335, 300, 75);
-        add(scrollPane);
+        notesArea.setFont(ModernTheme.FONT_REGULAR);
+        JScrollPane notesScroll = new JScrollPane(notesArea);
 
-        // Add button
-        JButton addButton = new JButton("Add Transaction");
-        addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        addButton.setBackground(new Color(52, 152, 219));
-        addButton.setForeground(Color.WHITE);
-        addButton.setBounds(180, 430, 200, 40);
-        addButton.setFocusPainted(false);
+        GridBagConstraints gc = new GridBagConstraints();
+        // Kept tight: eight rows plus the button bar must fit in the 640px window,
+        // otherwise the last row (Notes) is the one that gets squeezed.
+        gc.insets = new Insets(5, 8, 5, 8);
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        gc.weightx = 1.0;
+
+        addRow(form, gc, 0, "Type:", typeCombo);
+        addRow(form, gc, 1, "Category:", categoryCombo);
+        addRow(form, gc, 2, "Company:", companyCombo);
+        addRow(form, gc, 3, "Quantity:", quantityField);
+        addRow(form, gc, 4, "Price / unit:", pricePerUnitField);
+        JPanel amountRow = new JPanel(new BorderLayout(8, 0));
+        amountRow.setOpaque(false);
+        amountRow.add(amountField, BorderLayout.CENTER);
+        amountRow.add(currencyLabel, BorderLayout.EAST);
+        addRow(form, gc, 5, "Amount:", amountRow);
+        addRow(form, gc, 6, "Date (YYYY-MM-DD):", dateField);
+        addRow(form, gc, 7, "Notes:", notesScroll);
+
+        JButton addButton = ModernTheme.createButton("Save Transaction", ModernTheme.SUCCESS);
         addButton.addActionListener(e -> addTransaction());
-        add(addButton);
+
+        JPanel btnWrap = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        btnWrap.setOpaque(false);
+        btnWrap.add(addButton);
+
+        JPanel page = new JPanel(new BorderLayout(0, 12));
+        page.setOpaque(false);
+        page.add(form, BorderLayout.CENTER);
+        page.add(btnWrap, BorderLayout.SOUTH);
+
+        centerWrap.add(page);
+        add(centerWrap, BorderLayout.CENTER);
+    }
+
+    private void addRow(JPanel form, GridBagConstraints gc, int row, String label, JComponent field) {
+        JLabel l = new JLabel(label);
+        l.setFont(ModernTheme.FONT_BOLD);
+        l.setForeground(ModernTheme.TEXT_MAIN);
+        gc.gridx = 0; gc.gridy = row; gc.weightx = 0.35;
+        form.add(l, gc);
+        gc.gridx = 1; gc.weightx = 0.65;
+        form.add(field, gc);
     }
 
     private void loadCurrency() {

@@ -47,12 +47,27 @@ public class database {
 
     public static Connection getConnection() {
         try {
-            return DriverManager.getConnection(URL, USER, PASSWORD);
+            Connection c = DriverManager.getConnection(URL, USER, PASSWORD);
+            try (java.sql.Statement s = c.createStatement()) {
+                s.execute("SET search_path TO public");
+            } catch (Exception ignored) {}
+            return c;
         } catch (SQLException e) {
             System.err.println("Connection failed: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
+    }
+
+    /** Show a friendly message when a window gets a null connection. Returns false if null. */
+    public static boolean requireConnection(java.awt.Component parent, Connection conn) {
+        if (conn == null) {
+            javax.swing.JOptionPane.showMessageDialog(parent,
+                    "Cannot connect to database.\nURL: " + URL + "\nCheck src/db.properties and PostgreSQL service.",
+                    "Database Offline", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     public static String getUrl() {

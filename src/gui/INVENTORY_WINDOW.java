@@ -3,6 +3,7 @@ package gui;
 import controller.database;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -15,11 +16,10 @@ public class INVENTORY_WINDOW extends JFrame {
     private DefaultTableModel categoryModel;
 
     public INVENTORY_WINDOW() {
-        setTitle("Inventory Dashboard");
-        setSize(650, 450);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        ModernTheme.setupWindow(this, "Inventory Dashboard", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        add(ModernTheme.createHeader("Inventory Dashboard", "Live stock levels — double-click a category to manage", ModernTheme.WARNING, new Color(194, 65, 12)), BorderLayout.NORTH);
 
         categoryModel = new DefaultTableModel(new String[]{"Category", "Quantity"}, 0) {
             @Override
@@ -45,6 +45,7 @@ public class INVENTORY_WINDOW extends JFrame {
         });
 
         JScrollPane scrollPane = new JScrollPane(categoryTable);
+        scrollPane.setBorder(new EmptyBorder(18, 24, 6, 24));
         add(scrollPane, BorderLayout.CENTER);
 
         JLabel infoLabel = new JLabel("Double-click a category to manage. Quantities update automatically.");
@@ -165,7 +166,7 @@ public class INVENTORY_WINDOW extends JFrame {
                 double cost = qtyToBuy * price;
                 int newQty = currentQty + qtyToBuy;
 
-                // ✅ Use value as the budget instead of remaining
+                // [OK]  Use value as the budget instead of remaining
                 Calendar cal = Calendar.getInstance();
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH) + 1;
@@ -182,7 +183,7 @@ public class INVENTORY_WINDOW extends JFrame {
 
                             if (cost > currentBudget) {
                                 JOptionPane.showMessageDialog(detail,
-                                        "❌ Not enough budget.\nAvailable: BDT " + currentBudget + "\nRequired: BDT " + cost);
+                                        "[X]  Not enough budget.\nAvailable: BDT " + currentBudget + "\nRequired: BDT " + cost);
                                 conn.rollback();
                                 return;
                             }
@@ -197,7 +198,7 @@ public class INVENTORY_WINDOW extends JFrame {
                             }
 
                         } else {
-                            JOptionPane.showMessageDialog(detail, "❌ Monthly budget not found for this month.");
+                            JOptionPane.showMessageDialog(detail, "[X]  Monthly budget not found for this month.");
                             conn.rollback();
                             return;
                         }

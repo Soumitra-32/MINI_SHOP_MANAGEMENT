@@ -8,11 +8,7 @@ import java.awt.*;
 public class homepage extends JFrame {
 
     public homepage(String title) {
-        setTitle(title);
-        setSize(650, 520);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(ModernTheme.BG_LIGHT);
+        ModernTheme.setupWindow(this, title, ModernTheme.WIN_HOME_W, ModernTheme.WIN_HOME_H, JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         initComponents();
@@ -20,19 +16,18 @@ public class homepage extends JFrame {
     }
 
     private void initComponents() {
+        // Gradient hero banner
+        add(ModernTheme.createHeader("Mini Shop & Expense Portal", "Point of Sale - Inventory - Finance Analytics", ModernTheme.PRIMARY, ModernTheme.VIOLET), BorderLayout.NORTH);
+
         // Center card panel
         JPanel centerWrapper = new JPanel(new GridBagLayout());
         centerWrapper.setOpaque(false);
 
-        JPanel card = new JPanel();
+        JPanel card = ModernTheme.createCard(35);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(ModernTheme.CARD_BG);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
-                new EmptyBorder(35, 45, 35, 45)
-        ));
+        card.setPreferredSize(new Dimension(420, 400));
 
-        JLabel titleLabel = new JLabel("Mini Shop & Expense Portal");
+        JLabel titleLabel = new JLabel("Welcome Back");
         titleLabel.setFont(ModernTheme.FONT_TITLE);
         titleLabel.setForeground(ModernTheme.TEXT_MAIN);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -44,10 +39,10 @@ public class homepage extends JFrame {
 
         JButton adminBtn = ModernTheme.createButton("Admin Login", ModernTheme.PRIMARY);
         JButton empBtn = ModernTheme.createButton("Employee Login", ModernTheme.SUCCESS);
-        JButton regBtn = ModernTheme.createButton("Register New Account", new Color(100, 116, 139));
-        JButton aboutBtn = ModernTheme.createButton("About Application", new Color(71, 85, 105));
+        JButton regBtn = ModernTheme.createButton("Register New Account", ModernTheme.ACCENT_DARK);
+        JButton aboutBtn = ModernTheme.createOutlineButton("About Application");
 
-        Dimension btnSize = new Dimension(260, 42);
+        Dimension btnSize = new Dimension(320, 44);
         for (JButton b : new JButton[]{adminBtn, empBtn, regBtn, aboutBtn}) {
             b.setMaximumSize(btnSize);
             b.setPreferredSize(btnSize);

@@ -23,14 +23,13 @@ public class SETTINGS_WINDOW extends JFrame {
     private double oldTotalBudget = 0;
 
     public SETTINGS_WINDOW() {
-        setTitle("Settings - Selling Prices & Monthly Budget");
-        setSize(900, 500);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        ModernTheme.setupWindow(this, "Settings - Selling Prices & Monthly Budget", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
         // Top Panel
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel topPanel = ModernTheme.createToolbar();
+
+        // Month selector (header added via northWrap below)
 
         // Month selector
         String[] months = {
@@ -60,7 +59,7 @@ public class SETTINGS_WINDOW extends JFrame {
         totalBudgetField = new JTextField(10);
         topPanel.add(totalBudgetField);
 
-        saveBudgetButton = new JButton("Save Monthly Budget");
+        saveBudgetButton = ModernTheme.createButton("Save Budget", ModernTheme.SUCCESS);
         topPanel.add(saveBudgetButton);
 
         topPanel.add(new JLabel("Currency: "));
@@ -68,11 +67,14 @@ public class SETTINGS_WINDOW extends JFrame {
         loadCurrencySetting(currencyField);
         topPanel.add(currencyField);
 
-        JButton saveCurrencyBtn = new JButton("Save Currency");
+        JButton saveCurrencyBtn = ModernTheme.createButton("Save Currency", ModernTheme.PRIMARY);
         saveCurrencyBtn.addActionListener(e -> saveCurrencySetting(currencyField.getText().trim()));
         topPanel.add(saveCurrencyBtn);
 
-        add(topPanel, BorderLayout.NORTH);
+        JPanel northWrap = new JPanel(new BorderLayout());
+        northWrap.add(ModernTheme.createHeader("System Settings", "Selling prices, monthly budgets & currency", ModernTheme.SLATE_DARK, ModernTheme.PRIMARY), BorderLayout.NORTH);
+        northWrap.add(topPanel, BorderLayout.CENTER);
+        add(northWrap, BorderLayout.NORTH);
 
         // Table
         tableModel = new DefaultTableModel(
@@ -98,8 +100,11 @@ public class SETTINGS_WINDOW extends JFrame {
 
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        saveButton = new JButton("Save Selling Prices");
-        add(saveButton, BorderLayout.SOUTH);
+        saveButton = ModernTheme.createButton("Save Selling Prices", ModernTheme.SUCCESS);
+        JPanel southBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
+        southBar.setBackground(ModernTheme.CARD_BG);
+        southBar.add(saveButton);
+        add(southBar, BorderLayout.SOUTH);
 
         // Load budget for selected month/year and load company settings
         loadBudget();
@@ -199,7 +204,7 @@ public class SETTINGS_WINDOW extends JFrame {
             updateStmt.executeBatch();
             conn.commit();
 
-            JOptionPane.showMessageDialog(this, "✅ Selling prices saved successfully!");
+            JOptionPane.showMessageDialog(this, "[OK]  Selling prices saved successfully!");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error saving selling prices: " + e.getMessage());
         }
@@ -217,7 +222,7 @@ public class SETTINGS_WINDOW extends JFrame {
             newBudget = Double.parseDouble(val);
             if (newBudget < 0) throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "❌ Invalid monthly budget.");
+            JOptionPane.showMessageDialog(this, "[X]  Invalid monthly budget.");
             return;
         }
 
@@ -231,7 +236,7 @@ public class SETTINGS_WINDOW extends JFrame {
             }
 
             oldTotalBudget = newBudget;
-            JOptionPane.showMessageDialog(this, "✅ Monthly budget updated for " + monthCombo.getSelectedItem() + " " + year + ".");
+            JOptionPane.showMessageDialog(this, "[OK]  Monthly budget updated for " + monthCombo.getSelectedItem() + " " + year + ".");
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error saving budget: " + e.getMessage());

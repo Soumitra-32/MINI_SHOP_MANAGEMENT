@@ -7,50 +7,31 @@ import java.awt.*;
 public class ABOUT_WINDOW extends JFrame {
 
     public ABOUT_WINDOW() {
-        setTitle("About - Mini Shop & Expense Management System");
-        setSize(540, 460);
-        setLocationRelativeTo(null);
-        setResizable(false);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        getContentPane().setBackground(ModernTheme.BG_LIGHT);
+        ModernTheme.setupWindow(this, "About - Mini Shop & Expense Management System",
+                ModernTheme.WIN_DIALOG_W, ModernTheme.WIN_DIALOG_H, JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(ModernTheme.CARD_BG);
-        header.setBorder(new EmptyBorder(16, 20, 16, 20));
-
-        JLabel title = new JLabel("Mini Shop & Expense Management", SwingConstants.CENTER);
-        title.setFont(ModernTheme.FONT_TITLE);
-        title.setForeground(ModernTheme.TEXT_MAIN);
-
-        JLabel sub = new JLabel("Version 2.0 • Powered by PostgreSQL & Java Swing", SwingConstants.CENTER);
-        sub.setFont(ModernTheme.FONT_REGULAR);
-        sub.setForeground(ModernTheme.TEXT_MUTED);
-
-        header.add(title, BorderLayout.NORTH);
-        header.add(sub, BorderLayout.SOUTH);
-        add(header, BorderLayout.NORTH);
+        add(ModernTheme.createHeader("Mini Shop & Expense Management", "Version 2.0  |  Powered by PostgreSQL & Java Swing", ModernTheme.PRIMARY, ModernTheme.VIOLET), BorderLayout.NORTH);
 
         JTextArea description = new JTextArea();
         description.setText("""
                 Welcome to Mini Shop & Expense Management System!
 
-                This application helps businesses efficiently track stock, sales transactions,
-                categories, operating expenses, and monthly financial performance.
+                This application helps retail stores track stock, sales,
+                product categories, operating expenses, and monthly profits.
 
-                ✦ Key Features:
-                • Dual transaction management (Sales/Income & Expenditures)
-                • Live stock decrementing and low-stock inventory dashboard alerts
-                • Category and product/company supplier inventory management
-                • Monthly budget tracking and financial reporting analytics
-                • PostgreSQL persistence for local and cloud deployments
+                KEY FEATURES:
+                - Sales / Income and Expense transaction recording
+                - Automatic stock deduction with low-stock alerts
+                - Category and supplier (company) catalog management
+                - Monthly budget control with restock verification
+                - Dashboard charts + monthly financial reports
 
-                👤 Ideal For:
-                • Retail shops, mini-marts, and small business points of sale
-                • Managers handling employee transactions and store revenue
+                IDEAL FOR:
+                - Retail shops, mini-marts and small POS businesses
+                - Managers monitoring staff sales and store revenue
 
-                📞 Support: +880-1234-567890
-                📧 Contact: support@minishop.com
+                Support: +880-1234-567890   |   support@minishop.com
                 """);
         description.setFont(ModernTheme.FONT_REGULAR);
         description.setForeground(ModernTheme.TEXT_MAIN);

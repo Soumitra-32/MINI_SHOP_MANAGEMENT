@@ -3,6 +3,7 @@ package gui;
 import controller.database;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
@@ -15,22 +16,27 @@ public class VIEW_TRANSACTIONS_WINDOW extends JFrame {
     private JComboBox<String> typeFilterCombo;
 
     public VIEW_TRANSACTIONS_WINDOW() {
-        setTitle("All Transactions");
-        setSize(950, 550);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
+        ModernTheme.setupWindow(this, "All Transactions", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(0, 0));
 
-        initToolbar();
-        initTable();
+        add(ModernTheme.createHeader("Transaction History", "Search, filter and manage every sale record", ModernTheme.SKY, ModernTheme.PRIMARY), BorderLayout.NORTH);
+
+        JPanel body = new JPanel(new BorderLayout(0, 0));
+        body.setOpaque(false);
+        initToolbar(body);
+        initTable(body);
+        add(body, BorderLayout.CENTER);
         loadTransactions();
 
         setVisible(true);
     }
 
-    private void initToolbar() {
+    private void initToolbar(JPanel body) {
         JPanel toolPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        toolPanel.setBackground(new Color(225, 238, 250));
+        toolPanel.setBackground(ModernTheme.CARD_BG);
+        toolPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, ModernTheme.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(8, 14, 8, 14)));
 
         toolPanel.add(new JLabel("Filter by Type:"));
         typeFilterCombo = new JComboBox<>(new String[]{"All", "Income", "Expense"});
@@ -38,16 +44,14 @@ public class VIEW_TRANSACTIONS_WINDOW extends JFrame {
         toolPanel.add(typeFilterCombo);
 
         toolPanel.add(new JLabel("Search:"));
-        searchField = new JTextField(12);
+        searchField = ModernTheme.createTextField(12);
         toolPanel.add(searchField);
 
-        JButton searchBtn = new JButton("Search");
-        searchBtn.setBackground(new Color(52, 152, 219));
-        searchBtn.setForeground(Color.WHITE);
+        JButton searchBtn = ModernTheme.createButton("Search", ModernTheme.PRIMARY);
         searchBtn.addActionListener(e -> loadTransactions());
         toolPanel.add(searchBtn);
 
-        JButton resetBtn = new JButton("Reset");
+        JButton resetBtn = ModernTheme.createOutlineButton("Reset");
         resetBtn.addActionListener(e -> {
             searchField.setText("");
             typeFilterCombo.setSelectedIndex(0);
@@ -55,16 +59,14 @@ public class VIEW_TRANSACTIONS_WINDOW extends JFrame {
         });
         toolPanel.add(resetBtn);
 
-        JButton deleteBtn = new JButton("Delete Selected");
-        deleteBtn.setBackground(new Color(231, 76, 60));
-        deleteBtn.setForeground(Color.WHITE);
+        JButton deleteBtn = ModernTheme.createButton("Delete Selected", ModernTheme.DANGER);
         deleteBtn.addActionListener(e -> deleteSelectedTransaction());
         toolPanel.add(deleteBtn);
 
-        add(toolPanel, BorderLayout.NORTH);
+        body.add(toolPanel, BorderLayout.NORTH);
     }
 
-    private void initTable() {
+    private void initTable(JPanel body) {
         String[] columnNames = {"ID", "#", "Type", "Category", "Company", "Quantity", "Amount", "Currency", "Date", "Notes", "User", "Role"};
         model = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -73,16 +75,15 @@ public class VIEW_TRANSACTIONS_WINDOW extends JFrame {
             }
         };
         transactionTable = new JTable(model);
-        transactionTable.setRowHeight(25);
-        transactionTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        transactionTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        ModernTheme.styleTable(transactionTable);
 
         transactionTable.getColumnModel().getColumn(0).setMinWidth(0);
         transactionTable.getColumnModel().getColumn(0).setMaxWidth(0);
         transactionTable.getColumnModel().getColumn(0).setWidth(0);
 
         JScrollPane scrollPane = new JScrollPane(transactionTable);
-        add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setBorder(new EmptyBorder(12, 16, 16, 16));
+        body.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void loadTransactions() {

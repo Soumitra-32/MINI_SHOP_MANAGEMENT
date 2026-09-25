@@ -16,11 +16,7 @@ public class adminloginpage extends JFrame {
     private JTextField adminKeyField;
 
     public adminloginpage() {
-        setTitle("Admin Portal Login");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(460, 520);
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(ModernTheme.BG_LIGHT);
+        ModernTheme.setupWindow(this, "Admin Portal Login", ModernTheme.WIN_AUTH_W, ModernTheme.WIN_AUTH_H, JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         initUI();
@@ -28,6 +24,8 @@ public class adminloginpage extends JFrame {
     }
 
     private void initUI() {
+        add(ModernTheme.createHeader("Admin Sign In", "Secure access to control center", ModernTheme.PRIMARY, ModernTheme.VIOLET), BorderLayout.NORTH);
+
         JPanel centerWrapper = new JPanel(new GridBagLayout());
         centerWrapper.setOpaque(false);
 
@@ -38,16 +36,6 @@ public class adminloginpage extends JFrame {
                 BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
                 new EmptyBorder(30, 40, 30, 40)
         ));
-
-        JLabel title = new JLabel("Admin Sign In");
-        title.setFont(ModernTheme.FONT_TITLE);
-        title.setForeground(ModernTheme.TEXT_MAIN);
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel sub = new JLabel("Enter your credentials to access system");
-        sub.setFont(ModernTheme.FONT_REGULAR);
-        sub.setForeground(ModernTheme.TEXT_MUTED);
-        sub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         usernameField = ModernTheme.createTextField(20);
         passwordField = ModernTheme.createPasswordField();
@@ -63,7 +51,7 @@ public class adminloginpage extends JFrame {
         loginBtn.setPreferredSize(fieldSize);
         loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton backBtn = ModernTheme.createButton("← Back to Home", new Color(148, 163, 184));
+        JButton backBtn = ModernTheme.createButton("Back to Home", new Color(148, 163, 184));
         backBtn.setMaximumSize(fieldSize);
         backBtn.setPreferredSize(fieldSize);
         backBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -73,11 +61,6 @@ public class adminloginpage extends JFrame {
             new homepage("Expense & Shop Management Portal");
             dispose();
         });
-
-        card.add(title);
-        card.add(Box.createVerticalStrut(4));
-        card.add(sub);
-        card.add(Box.createVerticalStrut(25));
 
         card.add(createFieldBlock("Username:", usernameField));
         card.add(Box.createVerticalStrut(12));

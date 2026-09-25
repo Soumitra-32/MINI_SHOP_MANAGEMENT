@@ -132,6 +132,34 @@ Execute the database script located at `src/sql_for_java_project/sql_commands`:
 psql -U postgres -d expense_tracker_db -f src/sql_for_java_project/sql_commands
 ```
 
+### 2b. (Optional) Load Demo / Seed Data
+To instantly populate the app with realistic sample content — 6 product categories,
+12 supplier products with stock & prices, ~20 sales/restock transactions spread over
+3 months, monthly expense-book entries (rent, electricity, salary), and monthly
+budgets:
+
+```bash
+psql -U postgres -d expense_tracker_db -f src/sql_for_java_project/sample_data.sql
+```
+
+The script is **idempotent** — every statement is guarded with `ON CONFLICT DO NOTHING`
+or `NOT EXISTS`, and the budgets/expense rows are derived from `CURRENT_DATE` rather than
+hard-coded — so it is safe to run repeatedly and keeps working in later months. After
+loading, the Dashboard, Reports, Inventory and Settings windows open with meaningful
+data instead of empty tables.
+
+> Without this step the app still runs, but all tables start empty and you must add
+> categories, companies and prices manually before recording any transaction.
+
+To wipe the demo content again and start from an empty shop:
+
+```sql
+TRUNCATE transactions, expenses RESTART IDENTITY;
+DELETE FROM companies;
+DELETE FROM categories;
+DELETE FROM settings WHERE setting_key LIKE 'budget_%';
+```
+
 ### 3. Configure Database Credentials
 Edit `src/db.properties` with your database details:
 
@@ -149,13 +177,45 @@ db.password=your_password_here
 
 ### 4. Build and Run
 
-#### Option A: Running with an IDE (IntelliJ IDEA / Eclipse)
+#### Option A (Recommended): One-Click `run.bat` (Windows)
+
+The project ships with `run.bat` at the repository root, which compiles every source
+file and launches the application in a single step — no IDE and no manual classpath
+setup required.
+
+```powershell
+# from the project root
+.\run.bat
+```
+
+What the script does, in order:
+
+| Step | Action |
+| :--- | :--- |
+| 1 | Locates `javac`/`java` — first `%JDK_BIN%`, then your system `PATH`, then falls back to the known IntelliJ JDK path `C:\Users\<user>\.jdks\openjdk-23.0.2\bin`. |
+| 2 | Creates the `out/` directory and deletes stale `*.class` files. |
+| 3 | Compiles all of `src/**/*.java` with the PostgreSQL JDBC driver on the classpath (`-encoding UTF-8`). |
+| 4 | Copies the runtime resources (`db.properties` and `gui/money_bg.jpg`) into `out/`. |
+| 5 | Launches `gui.Main` with `out;lib/postgresql-42.7.3.jar` as the classpath. |
+
+**If `javac` is not found**, either install a JDK 17+ (and make sure it is on `PATH`),
+or point the script at your JDK explicitly before running it:
+
+```powershell
+set JDK_BIN=C:\Program Files\Java\jdk-21\bin
+.\run.bat
+```
+
+> `run.bat` is a Windows batch file. On Linux/macOS or Git Bash, use the manual
+> terminal commands in Option C below instead.
+
+#### Option B: Running with an IDE (IntelliJ IDEA / Eclipse)
 1. Open the project folder in IntelliJ IDEA.
 2. Ensure the JDK is set to **Java 17+** (`File` → `Project Structure` → `Project SDK`).
 3. Ensure `lib/postgresql-42.7.3.jar` is included under `Libraries` (already configured in `.iml`).
 4. Run `src/gui/Main.java`.
 
-#### Option B: Running from Terminal (PowerShell / Bash)
+#### Option C: Running from Terminal (PowerShell / Bash)
 ```powershell
 # Compile all source files with the PostgreSQL JDBC driver
 javac -cp "lib/postgresql-42.7.3.jar" -d bin (Get-ChildItem -Path "src" -Recurse -Filter "*.java").FullName
@@ -244,8 +304,10 @@ MINI_SHOP_MANAGEMENT/
 │   │   ├── BackgroundImagePanel.java # Fallback-safe background component
 │   │   └── PRODUCT.java             # Product base domain model
 │   ├── sql_for_java_project/
-│   │   └── sql_commands             # PostgreSQL database creation script
+│   │   ├── sql_commands             # PostgreSQL schema (tables + default users)
+│   │   └── sample_data.sql          # Demo/seed data (categories, stock, transactions)
 │   └── db.properties                # External database configuration
+├── run.bat                          # One-click build & run script (Windows)
 ├── demo final.iml                   # IntelliJ module file
 └── README.md                        # Project documentation
 ```
@@ -267,6 +329,9 @@ MINI_SHOP_MANAGEMENT/
 ## 📦 Prerequisites
 
 * **Java Development Kit (JDK)**: JDK 17, 21, or 23 installed.
+  Verify with `javac -version`. If `javac` is not on your `PATH`, you can still use
+  `run.bat` by setting `JDK_BIN` to your JDK's `bin` folder first.
 * **PostgreSQL Database**: PostgreSQL 12 or newer (local installation or cloud instance).
+* **PostgreSQL CLI (`psql`)** — needed to load the schema and the optional seed data.
 * **IDE (Optional)**: IntelliJ IDEA, Eclipse, NetBeans, or VS Code.
 

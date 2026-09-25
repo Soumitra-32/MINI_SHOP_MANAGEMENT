@@ -28,24 +28,24 @@ public class DASHBOARD_WINDOW extends JFrame {
     private double maxProductIncome = 0;
 
     public DASHBOARD_WINDOW() {
-
-
-        setTitle("Dashboard");
-        setSize(1000, 700);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        ModernTheme.setupWindow(this, "Dashboard Analytics", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(200, 230, 255));
-        setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        UIManager.put("Label.font", new Font("Segoe UI", Font.PLAIN, 14));
-        UIManager.put("ComboBox.font", new Font("Segoe UI", Font.PLAIN, 14));
-        UIManager.put("Table.font", new Font("Segoe UI", Font.PLAIN, 13));
-        UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 14));
+        add(ModernTheme.createHeader("Dashboard Analytics", "Income vs Expense vs Budget + Staff & Low-Stock Overview", ModernTheme.PRIMARY, ModernTheme.VIOLET), BorderLayout.NORTH);
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        topPanel.setBackground(new Color(180, 210, 255));
-        topPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        JPanel content = new JPanel(new BorderLayout(10, 10));
+        content.setOpaque(false);
+        content.setBorder(new EmptyBorder(14, 16, 14, 16));
+
+        // Two explicit rows. A single FlowLayout row reports a ONE-row preferred
+        // height but actually wraps at this width, which pushed the trailing
+        // buttons below the panel edge where they were clipped and unclickable.
+        JPanel topPanel = new JPanel(new GridLayout(2, 1, 0, 4));
+        topPanel.setBackground(ModernTheme.CARD_BG);
+        JPanel filterRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        filterRow.setOpaque(false);
+        JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        actionRow.setOpaque(false);
 
         viewTypeBox = new JComboBox<>(new String[]{"Day", "Month", "Year"});
         yearBox = new JComboBox<>(getYears());
@@ -57,45 +57,51 @@ public class DASHBOARD_WINDOW extends JFrame {
         monthBox.setSelectedItem(String.format("%02d", now.getMonthValue()));
         dayBox.setSelectedItem(String.format("%02d", now.getDayOfMonth()));
 
-        topPanel.add(label("View:"));
-        topPanel.add(viewTypeBox);
-        topPanel.add(label("Year:"));
-        topPanel.add(yearBox);
-        topPanel.add(label("Month:"));
-        topPanel.add(monthBox);
-        topPanel.add(label("Day:"));
-        topPanel.add(dayBox);
+        filterRow.add(label("View:"));
+        filterRow.add(viewTypeBox);
+        filterRow.add(label("Year:"));
+        filterRow.add(yearBox);
+        filterRow.add(label("Month:"));
+        filterRow.add(monthBox);
+        filterRow.add(label("Day:"));
+        filterRow.add(dayBox);
 
         incomeLabel = label("Income: 0", Color.GREEN.darker());
         expenseLabel = label("Expense: 0", Color.RED);
 
-        topPanel.add(incomeLabel);
-        topPanel.add(expenseLabel);
+        actionRow.add(incomeLabel);
+        actionRow.add(expenseLabel);
 
 
-        JButton overviewChartBtn = createStyledButton("Overview Chart", new Color(52, 152, 219)); // Blue
+        JButton overviewChartBtn = ModernTheme.createButton("Overview Chart", ModernTheme.SKY);
         overviewChartBtn.addActionListener(e -> calculateAndDisplay());
-        topPanel.add(overviewChartBtn);
+        actionRow.add(overviewChartBtn);
 
-        JButton expenseProductBtn = createStyledButton("Expense by Product", new Color(231, 76, 60)); // Red
+        JButton expenseProductBtn = ModernTheme.createButton("Expense by Product", ModernTheme.DANGER);
         expenseProductBtn.addActionListener(e -> showExpenseByProductChart());
-        topPanel.add(expenseProductBtn);
+        actionRow.add(expenseProductBtn);
 
-        JButton productIncomeBtn = createStyledButton("Income by Product", new Color(46, 204, 113)); // Green
+        JButton productIncomeBtn = ModernTheme.createButton("Income by Product", ModernTheme.SUCCESS);
         productIncomeBtn.addActionListener(e -> showIncomeByProductChart());
-        topPanel.add(productIncomeBtn);
+        actionRow.add(productIncomeBtn);
 
+        topPanel.add(filterRow);
+        topPanel.add(actionRow);
 
+        content.add(topPanel, BorderLayout.NORTH);
 
-        add(topPanel, BorderLayout.NORTH);
-
-        chartPanel = new JPanel();
-        chartPanel.setBackground(new Color(220, 240, 255));
-        add(chartPanel, BorderLayout.CENTER);
+        chartPanel = new JPanel(new BorderLayout());
+        chartPanel.setBackground(ModernTheme.CARD_BG);
+        chartPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
+                new EmptyBorder(14, 14, 14, 14)));
+        content.add(chartPanel, BorderLayout.CENTER);
 
         JPanel employeePanel = new JPanel(new BorderLayout(10, 10));
-        employeePanel.setBackground(new Color(200, 230, 255));
-        employeePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        employeePanel.setBackground(ModernTheme.CARD_BG);
+        employeePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernTheme.BORDER_COLOR, 1, true),
+                new EmptyBorder(10, 10, 10, 10)));
         employeePanel.setPreferredSize(new Dimension(300, 0));
 
         employeeModel = new DefaultTableModel(new String[]{"Employee Username"}, 0);
@@ -110,9 +116,9 @@ public class DASHBOARD_WINDOW extends JFrame {
         employeePanel.add(new JScrollPane(employeeTable), BorderLayout.CENTER);
 
         JPanel lowStockPanel = new JPanel(new BorderLayout(10, 10));
-        lowStockPanel.setBackground(new Color(200, 230, 255));
-        lowStockPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        lowStockPanel.setPreferredSize(new Dimension(300, 200));
+        lowStockPanel.setBackground(ModernTheme.CARD_BG);
+        lowStockPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        lowStockPanel.setPreferredSize(new Dimension(300, 220));
 
         DefaultTableModel stockModel = new DefaultTableModel(new String[]{"Product", "Quantity"}, 0);
         JTable stockTable = new JTable(stockModel);
@@ -126,7 +132,8 @@ public class DASHBOARD_WINDOW extends JFrame {
         lowStockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
         employeePanel.add(lowStockPanel, BorderLayout.SOUTH);
 
-        add(employeePanel, BorderLayout.EAST);
+        content.add(employeePanel, BorderLayout.EAST);
+        add(content, BorderLayout.CENTER);
 
         ActionListener filterListener = e -> calculateAndDisplay();
         viewTypeBox.addActionListener(filterListener);
@@ -153,30 +160,11 @@ public class DASHBOARD_WINDOW extends JFrame {
         return label;
     }
     private JButton createStyledButton(String text, Color bgColor) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setBackground(bgColor);
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        return button;
+        return ModernTheme.createButton(text, bgColor);
     }
 
     private void styleTable(JTable table) {
-        table.setRowHeight(30);
-        table.setShowGrid(false);
-        table.setIntercellSpacing(new Dimension(0, 0));
-        table.setFillsViewportHeight(true);
-        table.setSelectionBackground(new Color(180, 220, 255));
-
-        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
-        center.setHorizontalAlignment(SwingConstants.CENTER);
-        table.setDefaultRenderer(Object.class, center);
-
-        table.getTableHeader().setBackground(new Color(200, 200, 200));
-        table.getTableHeader().setForeground(Color.BLACK);
-        table.getTableHeader().setReorderingAllowed(false);
+        ModernTheme.styleTable(table);
     }
 
     private String[] getYears() {

@@ -18,25 +18,39 @@ public class REPORTS_WINDOW extends JFrame {
     private JTable topProductsTable;
     private DefaultTableModel topProductsModel;
 
-    public REPORTS_WINDOW() {
-        setTitle("Reports & Financial Analytics");
-        setSize(850, 600);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
-        getContentPane().setBackground(new Color(235, 245, 255));
+    private JPanel toolbarPanel;
+    private JPanel summaryPanel;
+    private JPanel tablesPanel;
 
-        initToolbar();
-        initSummaryCards();
-        initDetailTables();
+    public REPORTS_WINDOW() {
+        ModernTheme.setupWindow(this, "Reports & Financial Analytics", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(0, 0));
+
+        add(ModernTheme.createHeader("Financial Reports", "Monthly income, expenses, profit and top sellers",
+                ModernTheme.VIOLET, ModernTheme.PRIMARY), BorderLayout.NORTH);
+
+        JPanel body = new JPanel(new BorderLayout(0, 0));
+        body.setOpaque(false);
+        // Toolbar + KPI cards form a fixed-height band at the top; the tables below
+        // then take every remaining pixel (they are the CENTER component). Putting
+        // the tables in SOUTH made their preferred height squeeze the CENTER band
+        // to a negative height, which hid the four KPI cards completely.
+        JPanel north = new JPanel(new BorderLayout(0, 0));
+        north.setOpaque(false);
+        initToolbar(north);
+        initSummaryCards(north);
+        body.add(north, BorderLayout.NORTH);
+        initDetailTables(body);
+        add(body, BorderLayout.CENTER);
 
         generateReport();
         setVisible(true);
     }
 
-    private void initToolbar() {
+    private void initToolbar(JPanel body) {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 12));
-        toolbar.setBackground(new Color(210, 230, 250));
+        toolbar.setBackground(ModernTheme.CARD_BG);
+        toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ModernTheme.BORDER_COLOR));
 
         toolbar.add(new JLabel("Report Month:"));
         String[] months = {
@@ -56,30 +70,31 @@ public class REPORTS_WINDOW extends JFrame {
         yearCombo.setSelectedItem(currentYear);
         toolbar.add(yearCombo);
 
-        JButton generateBtn = new JButton("Generate Report");
-        generateBtn.setBackground(new Color(52, 152, 219));
-        generateBtn.setForeground(Color.WHITE);
-        generateBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        JButton generateBtn = ModernTheme.createButton("Generate Report", ModernTheme.PRIMARY);
         generateBtn.addActionListener(e -> generateReport());
         toolbar.add(generateBtn);
 
         monthCombo.addActionListener(e -> generateReport());
         yearCombo.addActionListener(e -> generateReport());
 
-        add(toolbar, BorderLayout.NORTH);
+        toolbarPanel = toolbar;
+        body.add(toolbar, BorderLayout.NORTH);
     }
 
-    private void initSummaryCards() {
+    private void initSummaryCards(JPanel body) {
         JPanel summaryPanel = new JPanel(new GridLayout(1, 4, 15, 15));
         summaryPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 15));
         summaryPanel.setOpaque(false);
 
-        totalIncomeLabel = createCard("Total Income", "0.00 BDT", new Color(46, 204, 113), summaryPanel);
-        totalExpenseLabel = createCard("Total Expense", "0.00 BDT", new Color(231, 76, 60), summaryPanel);
-        netProfitLabel = createCard("Net Profit", "0.00 BDT", new Color(52, 152, 219), summaryPanel);
-        transactionsCountLabel = createCard("Transactions", "0", new Color(155, 89, 182), summaryPanel);
+        totalIncomeLabel = createCard("Total Income", "0.00 BDT", ModernTheme.SUCCESS, summaryPanel);
+        totalExpenseLabel = createCard("Total Expense", "0.00 BDT", ModernTheme.DANGER, summaryPanel);
+        netProfitLabel = createCard("Net Profit", "0.00 BDT", ModernTheme.SKY, summaryPanel);
+        transactionsCountLabel = createCard("Transactions", "0", ModernTheme.VIOLET, summaryPanel);
 
-        add(summaryPanel, BorderLayout.WEST);
+        this.summaryPanel = summaryPanel;
+        // Fixed band height so the cards always get room, whatever the table wants.
+        summaryPanel.setPreferredSize(new Dimension(0, 120));
+        body.add(summaryPanel, BorderLayout.CENTER);
     }
 
     private JLabel createCard(String title, String defaultValue, Color color, JPanel parent) {
@@ -106,7 +121,7 @@ public class REPORTS_WINDOW extends JFrame {
         return valLbl;
     }
 
-    private void initDetailTables() {
+    private void initDetailTables(JPanel body) {
         JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 15, 15));
         centerPanel.setOpaque(false);
@@ -125,7 +140,8 @@ public class REPORTS_WINDOW extends JFrame {
         ModernTheme.styleTable(topProductsTable);
 
         centerPanel.add(new JScrollPane(topProductsTable), BorderLayout.CENTER);
-        add(centerPanel, BorderLayout.CENTER);
+        tablesPanel = centerPanel;
+        body.add(centerPanel, BorderLayout.CENTER);
     }
 
     private void generateReport() {
@@ -175,9 +191,9 @@ public class REPORTS_WINDOW extends JFrame {
             double profit = income - expense;
             netProfitLabel.setText(String.format("%.2f BDT", profit));
             if (profit >= 0) {
-                netProfitLabel.setForeground(new Color(46, 204, 113));
+                netProfitLabel.setForeground(ModernTheme.SUCCESS);
             } else {
-                netProfitLabel.setForeground(new Color(231, 76, 60));
+                netProfitLabel.setForeground(ModernTheme.DANGER);
             }
             transactionsCountLabel.setText(String.valueOf(txCount));
 

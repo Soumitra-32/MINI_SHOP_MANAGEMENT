@@ -21,12 +21,14 @@ public class MANAGE_CATEGORIES_WINDOW extends JFrame {
     private String selectedCategoryName = null;
 
     public MANAGE_CATEGORIES_WINDOW() {
-        setTitle("Manage Categories and Companies");
-        setSize(900, 500);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(null);
-        getContentPane().setBackground(new Color(200, 230, 255));
+        ModernTheme.setupWindow(this, "Manage Categories and Companies", ModernTheme.WIN_MAIN_W, ModernTheme.WIN_MAIN_H, JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(0, 0));
+
+        add(ModernTheme.createHeader("Manage Categories & Companies", "Create categories, add suppliers and set prices", ModernTheme.VIOLET, new Color(109, 40, 217)), BorderLayout.NORTH);
+
+        JPanel body = new JPanel(null);
+        body.setOpaque(false);
+        body.setPreferredSize(new Dimension(ModernTheme.WIN_MAIN_W - 40, 430));
 
         initComponents();
         loadCategories();
@@ -47,16 +49,12 @@ public class MANAGE_CATEGORIES_WINDOW extends JFrame {
         categoryNameField.setBounds(150, 40, 170, 25);
         add(categoryNameField);
 
-        JButton addCategoryBtn = new JButton("Add Category");
-        addCategoryBtn.setBounds(150, 75, 120, 30);
-        addCategoryBtn.setBackground(new Color(46, 204, 113));
-        addCategoryBtn.setForeground(Color.WHITE);
+        JButton addCategoryBtn = ModernTheme.createButton("Add Category", ModernTheme.SUCCESS);
+        addCategoryBtn.setBounds(150, 75, 130, 32);
         add(addCategoryBtn);
 
-        JButton deleteCategoryBtn = new JButton("Delete Category");
-        deleteCategoryBtn.setBounds(280, 75, 140, 30);
-        deleteCategoryBtn.setBackground(new Color(231, 76, 60));
-        deleteCategoryBtn.setForeground(Color.WHITE);
+        JButton deleteCategoryBtn = ModernTheme.createButton("Delete Category", ModernTheme.DANGER);
+        deleteCategoryBtn.setBounds(290, 75, 140, 32);
         add(deleteCategoryBtn);
 
         categoryTableModel = new DefaultTableModel(new String[]{"Name"}, 0) {
@@ -91,16 +89,12 @@ public class MANAGE_CATEGORIES_WINDOW extends JFrame {
         companyPriceField.setBounds(570, 70, 170, 25);
         add(companyPriceField);
 
-        JButton addCompanyBtn = new JButton("Add Company");
-        addCompanyBtn.setBounds(570, 105, 120, 30);
-        addCompanyBtn.setBackground(new Color(46, 204, 113));
-        addCompanyBtn.setForeground(Color.WHITE);
+        JButton addCompanyBtn = ModernTheme.createButton("Add Company", ModernTheme.SUCCESS);
+        addCompanyBtn.setBounds(570, 105, 130, 32);
         add(addCompanyBtn);
 
-        JButton deleteCompanyBtn = new JButton("Delete Company");
-        deleteCompanyBtn.setBounds(700, 105, 140, 30);
-        deleteCompanyBtn.setBackground(new Color(231, 76, 60));
-        deleteCompanyBtn.setForeground(Color.WHITE);
+        JButton deleteCompanyBtn = ModernTheme.createButton("Delete Company", ModernTheme.DANGER);
+        deleteCompanyBtn.setBounds(710, 105, 140, 32);
         add(deleteCompanyBtn);
 
         companyTableModel = new DefaultTableModel(new String[]{"Company Name", "Price"}, 0) {
